@@ -7,6 +7,7 @@ import datetime
 import asyncio
 import logging
 from dotenv import load_dotenv
+import csv
 
 from .config import settings
 from .decryption_utils import convert_encoded_data_to_dictionary
@@ -209,6 +210,32 @@ class GuardianDecryption:
                     #     websocket_resource_url,
                     # )
                     logging.info("[DECRYPT]: Sending data to the decrypt")
+                eeg_f = open('eeg.csv', 'w')
+                imu_f = open('imu.csv', 'w')
+                eeg_csv = csv.DictWriter(
+                    eeg_f,
+                    dialect="excel",
+                    fieldnames=["timestamp", "ch1"],
+                )
+                imu_csv = csv.DictWriter(
+                    imu_f,
+                    dialect="excel",
+                    fieldnames=[
+                        "timestamp",
+                        "acc_x",
+                        "acc_y",
+                        "acc_z",
+                        "magn_x",
+                        "magn_y",
+                        "magn_z",
+                        "gyro_x",
+                        "gyro_y",
+                        "gyro_z",
+                    ],
+                )
+                eeg_csv.writeheader()
+                imu_csv.writeheader()
+
                 while True:
                     try:
                         # forward data to the cloud
@@ -216,7 +243,11 @@ class GuardianDecryption:
 
                         #print("Sending to the decrypt ", asdict(data_model))
                         # print data.payload pretty
-                        print(json.dumps(data_model.payload, indent=4))
+                        # print(json.dumps(data_model.payload, indent=4))
+
+                        eeg_csv.writerows(data_model.payload["eeg"])
+                        imu_csv.writerows(data_model.payload["imu"])
+
                         # await websocket.send(json.dumps(asdict(data_model)))
                         # package_receipt = await websocket.recv()
 
@@ -256,6 +287,8 @@ class GuardianDecryption:
                             break
 
                     except asyncio.CancelledError as error:
+                        eeg_f.close()
+                        imu_f.close()
                         # async with websockets.connect(
                         #     websocket_resource_url
                         # ) as websocket:

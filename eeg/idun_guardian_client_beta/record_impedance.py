@@ -6,7 +6,7 @@ import asyncio
 from src.idun_guardian_client_beta.client import GuardianClient
 
 
-IMPEDANCE_DURATION = 5  # duration of impedance measurement in seconds
+IMPEDANCE_DURATION = 100  # duration of impedance measurement in seconds
 MAINS_FREQUENCY_60Hz = (
     False  # mains frequency in Hz (50 or 60), for Europe 50Hz, for US 60Hz
 )

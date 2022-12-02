@@ -4,7 +4,6 @@
 
 1. You can use the Python SDK to search for the device.
 2. You can use the Python SDK to connect and record data from the earbud.
-3. You can download the data to your local machine.
 
 ---
 
@@ -38,18 +37,7 @@
     pipenv shell
     ```
 
-4. After the environment is activated, install the Python SDK using the following command:
-    - With a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) use the following command:
-    ```bash
-    pip install idun-guardian-client-beta
-    ```
-    or
-    - With a [pipenv environment](https://pypi.org/project/pipenv/) use the following command:
-    ```bash
-    pipenv install idun-guardian-client-beta
-    ```
-
-5. After installing the package, make sure that the dependencies are correctly installed by running the following command and inspecting the packages installed in the terminal output:
+5. Make sure that the dependencies are correctly installed by running the following command and inspecting the packages installed in the terminal output:
 
     ```bash
     pip list

@@ -210,104 +210,103 @@ class GuardianDecryption:
                     #     websocket_resource_url,
                     # )
                     logging.info("[DECRYPT]: Sending data to the decrypt")
-                eeg_f = open('eeg.csv', 'w')
-                imu_f = open('imu.csv', 'w')
-                eeg_csv = csv.DictWriter(
-                    eeg_f,
-                    dialect="excel",
-                    fieldnames=["timestamp", "ch1"],
-                )
-                imu_csv = csv.DictWriter(
-                    imu_f,
-                    dialect="excel",
-                    fieldnames=[
-                        "timestamp",
-                        "acc_x",
-                        "acc_y",
-                        "acc_z",
-                        "magn_x",
-                        "magn_y",
-                        "magn_z",
-                        "gyro_x",
-                        "gyro_y",
-                        "gyro_z",
-                    ],
-                )
-                eeg_csv.writeheader()
-                imu_csv.writeheader()
 
-                while True:
-                    try:
-                        # forward data to the cloud
-                        await unpack_and_load_data()
+                with open('eeg.csv', 'w') as eeg_f:
+                    with open('imu.csv', 'w') as imu_f:
+                        eeg_csv = csv.DictWriter(
+                            eeg_f,
+                            dialect="excel",
+                            fieldnames=["timestamp", "ch1"],
+                        )
+                        imu_csv = csv.DictWriter(
+                            imu_f,
+                            dialect="excel",
+                            fieldnames=[
+                                "timestamp",
+                                "acc_x",
+                                "acc_y",
+                                "acc_z",
+                                "magn_x",
+                                "magn_y",
+                                "magn_z",
+                                "gyro_x",
+                                "gyro_y",
+                                "gyro_z",
+                            ],
+                        )
+                        eeg_csv.writeheader()
+                        imu_csv.writeheader()
 
-                        #print("Sending to the decrypt ", asdict(data_model))
-                        # print data.payload pretty
-                        # print(json.dumps(data_model.payload, indent=4))
+                    while True:
+                        try:
+                            # forward data to the cloud
+                            await unpack_and_load_data()
 
-                        eeg_csv.writerows(data_model.payload["eeg"])
-                        imu_csv.writerows(data_model.payload["imu"])
+                            #print("Sending to the decrypt ", asdict(data_model))
+                            # print data.payload pretty
+                            # print(json.dumps(data_model.payload, indent=4))
 
-                        # await websocket.send(json.dumps(asdict(data_model)))
-                        # package_receipt = await websocket.recv()
+                            eeg_csv.writerows(data_model.payload["eeg"])
+                            imu_csv.writerows(data_model.payload["imu"])
 
-                        if self.first_message_check:
-                            self.first_message_check = False
+                            # await websocket.send(json.dumps(asdict(data_model)))
+                            # package_receipt = await websocket.recv()
+
+                            if self.first_message_check:
+                                self.first_message_check = False
+                                if self.debug:
+                                    log_first_message()
+
+                            if data_model.stop:
+                                if self.debug:
+                                    log_final_message()
+                                self.final_message_check = True
+                                break
+
+                        except (
+                            asyncio.TimeoutError,
+                            # websockets.exceptions.ConnectionClosed,
+                        ) as error:
                             if self.debug:
-                                log_first_message()
+                                logging.info(
+                                    "[DECRYPT]: Interuption: %s",
+                                    error,
+                                )
+                            try:
+                                if self.debug:
+                                    logging.info(
+                                        "[DECRYPT]: Some error occured, trying to reconnect"
+                                    )
+                                continue
+                            except Exception as error:
+                                if self.debug:
+                                    logging.info(
+                                        "[DECRYPT]: Trying again in %s seconds",
+                                        self.retry_time,
+                                    )
+                                await asyncio.sleep(self.ping_timeout)
+                                break
 
-                        if data_model.stop:
+                        except asyncio.CancelledError as error:
+                            # async with websockets.connect(
+                            #     websocket_resource_url
+                            # ) as websocket:
+                            if self.debug:
+                                logging.info(
+                                    "[DECRYPT]: Error occured: %s",
+                                    error,
+                                )
+                            await unpack_and_load_data_termination()
+
+                            print(json.dumps(data_model.payload, indent=4))
+                            #decrypted_queue.
+                            # await websocket.send(json.dumps(asdict(data_model)))
+                            # package_receipt = await websocket.recv()
+
                             if self.debug:
                                 log_final_message()
                             self.final_message_check = True
                             break
-
-                    except (
-                        asyncio.TimeoutError,
-                        # websockets.exceptions.ConnectionClosed,
-                    ) as error:
-                        if self.debug:
-                            logging.info(
-                                "[DECRYPT]: Interuption: %s",
-                                error,
-                            )
-                        try:
-                            if self.debug:
-                                logging.info(
-                                    "[DECRYPT]: Some error occured, trying to reconnect"
-                                )
-                            continue
-                        except Exception as error:
-                            if self.debug:
-                                logging.info(
-                                    "[DECRYPT]: Trying again in %s seconds",
-                                    self.retry_time,
-                                )
-                            await asyncio.sleep(self.ping_timeout)
-                            break
-
-                    except asyncio.CancelledError as error:
-                        eeg_f.close()
-                        imu_f.close()
-                        # async with websockets.connect(
-                        #     websocket_resource_url
-                        # ) as websocket:
-                        if self.debug:
-                            logging.info(
-                                "[DECRYPT]: Error occured: %s",
-                                error,
-                            )
-                        await unpack_and_load_data_termination()
-
-                        print(json.dumps(data_model.payload, indent=4))
-                        #decrypted_queue.
-                        # await websocket.send(json.dumps(asdict(data_model)))
-                        # package_receipt = await websocket.recv()
-
-                        if self.debug:
-                            log_final_message()
-                        self.final_message_check = True
-                        break
 
             except Exception as error:
                 if self.debug:

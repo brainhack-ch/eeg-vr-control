@@ -11,9 +11,12 @@ MAINS_FREQUENCY_60Hz = (
     False  # mains frequency in Hz (50 or 60), for Europe 50Hz, for US 60Hz
 )
 
-# Get device address
-bci = GuardianClient()
-bci.address = asyncio.run(bci.search_device())
+DEVICES=[
+    "F8:DB:73:4E:80:C6",
+    "C3:E4:75:45:2F:A8",
+]
+# start a recording session
+bci = GuardianClient(address=DEVICES[0])
 
 # start a recording session
 asyncio.run(

@@ -6,7 +6,7 @@ import asyncio
 from src.idun_guardian_client_beta.client import GuardianClient
 
 EXPERIMENT: str = "Testing"
-RECORDING_TIMER: int = 10
+RECORDING_TIMER: int = 40
 LED_SLEEP: bool = False
 
 DEVICES=[
@@ -14,7 +14,7 @@ DEVICES=[
     "C3:E4:75:45:2F:A8",
 ]
 # start a recording session
-bci = GuardianClient(address=DEVICES[1])
+bci = GuardianClient(address=DEVICES[0])
 
 # start a recording session
 asyncio.run(

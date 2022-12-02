@@ -2,6 +2,7 @@
 Initialization of the IDUN Guardian Client
 """
 import os
+import csv
 import asyncio
 import logging
 from datetime import datetime
@@ -205,16 +206,16 @@ class GuardianClient:
         logging.info("[CLIENT] Recording ID: %s", recording_id)
         # log the experiment name in bold using the logging module
         logging.info("[CLIENT] Experiment description: %s", experiment)
+        for eeg_csv, imu_csv in init_csv_files():
+            mac_id = await self.guardian_ble.get_device_mac()
+            ble_client_task = self.guardian_ble.run_ble_record(
+                data_queue, recording_timer, mac_id, led_sleep
+            )
+            decryption_consumer_task = self.guardian_decryption.decrypt_data(
+                eeg_csv, imu_csv, data_queue, mac_id, recording_id
+            )
 
-        mac_id = await self.guardian_ble.get_device_mac()
-        ble_client_task = self.guardian_ble.run_ble_record(
-            data_queue, recording_timer, mac_id, led_sleep
-        )
-        decryption_consumer_task = self.guardian_decryption.decrypt_data(
-            data_queue, mac_id, recording_id
-        )
-
-        await asyncio.wait([ble_client_task, decryption_consumer_task],return_when=asyncio.FIRST_COMPLETED)
+            await asyncio.wait([ble_client_task, decryption_consumer_task],return_when=asyncio.FIRST_COMPLETED)
         if self.debug:
             logging.info("[CLIENT]: -----------  All tasks are COMPLETED -----------")
         print(f"-----Recording ID {recording_id}------")
@@ -254,10 +255,7 @@ class GuardianClient:
         ble_client_task = self.guardian_ble.get_impedance_measurement(
             data_queue, impedance_display_time, mains_freq_60hz, mac_id
         )
-        api_consumer_task = self.guardian_api.connect_ws_api(
-            data_queue, mac_id, recording_id
-        )
-        await asyncio.wait([ble_client_task, api_consumer_task])
+        await asyncio.wait([ble_client_task])
 
         if self.debug:
             logging.info("[CLIENT]: Disconnect BLE and close websocket connection")
@@ -278,3 +276,39 @@ class GuardianClient:
         if self.debug:
             logging.info("[CLIENT]: Disconnect BLE and close websocket connection")
         print("-----Battery check stopped------")
+
+def init_csv_files():
+    try:
+        os.remove('eeg.csv')
+    except:
+        pass
+    try:
+        os.remove('imu.csv')
+    except:
+        pass
+    with open('eeg.csv', 'w') as eeg_f:
+        with open('imu.csv', 'w') as imu_f:
+            eeg_csv = csv.DictWriter(
+                eeg_f,
+                dialect="excel",
+                fieldnames=["timestamp", "ch1"],
+            )
+            imu_csv = csv.DictWriter(
+                imu_f,
+                dialect="excel",
+                fieldnames=[
+                    "timestamp",
+                    "acc_x",
+                    "acc_y",
+                    "acc_z",
+                    "magn_x",
+                    "magn_y",
+                    "magn_z",
+                    "gyro_x",
+                    "gyro_y",
+                    "gyro_z",
+                ],
+            )
+            eeg_csv.writeheader()
+            imu_csv.writeheader()
+            yield (eeg_csv, imu_csv)

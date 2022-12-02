@@ -11,8 +11,8 @@
 
 - [Python 3.10](https://www.python.org/downloads/release/python-3100), if you already have another python version installed and you do not want to create a virtual environment to run the SDK, then you have to install Python 3.10 and [set it as your default Python](https://www.youtube.com/watch?v=zriWqGNJg4k).
     - If you have conflicts with other packages when installing the Python SDK:
-        -  Use [Conda](https://www.anaconda.com/products/distribution) which will create an environment and configure your python version to the correct one with the following command: 
-        
+        -  Use [Conda](https://www.anaconda.com/products/distribution) which will create an environment and configure your python version to the correct one with the following command:
+
         ```bash
         conda create -n idun_env python=3.10
         ```
@@ -28,13 +28,20 @@
 1. Create a new repository or folder
 2. Open the terminal in the same folder location or direct to that location within an already open terminal. For Windows you can use command prompt or Anaconda prompt, and Mac OS you can use the terminal or Anaconda prompt.
 
+3. Install `Pipenv`, a package manager.
+    ```bash
+    pip install pipenv
+    ```
+
 3. First activate the virtual environment if you have created one by using the following command, this command must always be run before using the python SDK:
     ```bash
-    conda activate idun_env
-    ```
-    or
-    ```bash
     pipenv shell
+    ```
+
+4. Install dependencies:
+    ```bash
+    pipenv lock
+    pipenv install --python 3.10
     ```
 
 5. Make sure that the dependencies are correctly installed by running the following command and inspecting the packages installed in the terminal output:

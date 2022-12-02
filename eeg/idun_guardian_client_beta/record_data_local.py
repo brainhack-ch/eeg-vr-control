@@ -9,9 +9,12 @@ EXPERIMENT: str = "Testing"
 RECORDING_TIMER: int = 10
 LED_SLEEP: bool = False
 
+DEVICES=[
+    "F8:DB:73:4E:80:C6",
+    "C3:E4:75:45:2F:A8",
+]
 # start a recording session
-bci = GuardianClient()
-bci.address = asyncio.run(bci.search_device())
+bci = GuardianClient(address=DEVICES[1])
 
 # start a recording session
 asyncio.run(

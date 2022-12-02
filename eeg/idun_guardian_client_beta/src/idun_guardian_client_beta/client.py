@@ -57,7 +57,7 @@ class GuardianClient:
 
         if address is not None:
             if self.check_ble_address(address):
-                self.guardian_ble = GuardianBLE(address, debug=self.debug)
+                self.guardian_ble = GuardianBLE(address=address, debug=self.debug)
                 self.address = address
         else:
             logging.info("No BLE address provided, will search for device...")

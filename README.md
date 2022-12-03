@@ -10,7 +10,7 @@ Unfortunately right now neuromore [doesn't support saving files to
 disk](https://github.com/neuromore/studio/issues/175), only to a personal user
 cloud account. If this is fixed we'll upload the pipeline here.
 
-![](neuromore.png)
+![](images/neuromore.png)
 
 # Initial README
 

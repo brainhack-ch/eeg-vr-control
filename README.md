@@ -1,5 +1,19 @@
 # brainhack22-eeg-vr-neurofeedback
 
+## Results
+
+### Neuromore pipeline
+
+We used neuromore to visualize and process EEG data, using OSC for both the input
+from the python EEG library and the output towards the VR pipeline.
+Unfortunately right now neuromore [doesn't support saving files to
+disk](https://github.com/neuromore/studio/issues/175), only to a personal user
+cloud account. If this is fixed we'll upload the pipeline here.
+
+![](neuromore.png)
+
+# Initial README
+
 ## Unity
 
 ### Installation

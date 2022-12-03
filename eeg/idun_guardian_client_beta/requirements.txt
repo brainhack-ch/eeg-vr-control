@@ -1,0 +1,18 @@
+asyncio >=3.4
+pycryptodome >=3.15
+bleak ==0.19.*
+python-dotenv ==0.21.*
+websockets >=10.3
+requests >=2.28
+numpy >=1.23
+pydantic >=1.10
+scipy
+pylint >=2.15
+mypy ==0.971.*
+black >=22.8
+pytest >=7.1
+ipykernel >=6.15
+pytest-asyncio ==0.19.*
+numpy >=1.23
+
+cffi
